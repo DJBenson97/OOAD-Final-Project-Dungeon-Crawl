@@ -7,71 +7,51 @@ import java.util.*;
 
 public class BFSStrategy implements NavigationStrategy {
 
-    private boolean goalFound = false;
-
-    private Queue<Position> frontier;
+    private Queue<Position> queue;
     private Set<Position> visited;
+    private Set<Position> frontier;
+    private boolean goalFound;
+    private Position goal;
 
     @Override
     public void initialize(Maze maze, Position start) {
-        frontier = new LinkedList<>();
+        queue = new LinkedList<>();
         visited = new HashSet<>();
-
-        frontier.add(start);
-        visited.add(start);
-
+        frontier = new HashSet<>();
         goalFound = false;
+
+        goal = findGoal(maze);
+
+        queue.add(start);
+        frontier.add(start);
     }
 
     @Override
     public Position step(Maze maze, Position current) {
+        if (queue.isEmpty()) return null;
 
-        if (goalFound) return current;
+        Position next = queue.poll();
+        frontier.remove(next);
 
-        if (frontier.isEmpty()) {
-            return current;  // nowhere to go
+        if (visited.contains(next)) {
+            return current;
         }
 
-        // BFS pop
-        Position pos = frontier.remove();
-        current = pos;
+        visited.add(next);
 
-        // goal check based on maze grid
-        if (maze.getCell(pos).isGoal()) {
+        if (next.equals(goal)) {
             goalFound = true;
-            return pos;
+            return next;
         }
 
-        // neighbors
-        for (Position next : getWalkableNeighbors(maze, pos)) {
-            if (!visited.contains(next)) {
-                visited.add(next);
-                frontier.add(next);
+        for (Position n : neighbors(maze, next)) {
+            if (!visited.contains(n) && !frontier.contains(n)) {
+                queue.add(n);
+                frontier.add(n);
             }
         }
 
-        return current;
-    }
-
-    private List<Position> getWalkableNeighbors(Maze maze, Position p) {
-        List<Position> list = new ArrayList<>();
-        int r = p.row();
-        int c = p.col();
-
-        int[][] dirs = {
-                {1, 0}, {-1, 0}, {0, 1}, {0, -1}
-        };
-
-        for (int[] d : dirs) {
-            int nr = r + d[0];
-            int nc = c + d[1];
-
-            if (maze.isInBounds(nr, nc) && !maze.getCell(nr, nc).isWall()) {
-                list.add(new Position(nr, nc));
-            }
-        }
-
-        return list;
+        return next;
     }
 
     @Override
@@ -86,6 +66,31 @@ public class BFSStrategy implements NavigationStrategy {
 
     @Override
     public Set<Position> getFrontierSet() {
-        return new HashSet<>(frontier);
+        return frontier;
+    }
+
+    private List<Position> neighbors(Maze maze, Position p) {
+        List<Position> list = new ArrayList<>();
+        int r = p.row();
+        int c = p.col();
+
+        int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
+        for (int[] d : dirs) {
+            Position np = new Position(r + d[0], c + d[1]);
+            if (maze.inBounds(np) && !maze.getCell(np).isWall()) {
+                list.add(np);
+            }
+        }
+        return list;
+    }
+
+    private Position findGoal(Maze maze) {
+        for (int r = 0; r < maze.getRows(); r++) {
+            for (int c = 0; c < maze.getCols(); c++) {
+                Position p = new Position(r, c);
+                if (maze.getCell(p).isGoal()) return p;
+            }
+        }
+        return null;
     }
 }

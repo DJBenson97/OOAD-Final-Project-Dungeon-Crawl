@@ -24,27 +24,30 @@ public class Agent {
     public void start() {
         if (running) return;
         running = true;
-
+    
+        // init strategy first
+        strategy.initialize(maze, position);
+    
         while (running && !strategy.goalFound()) {
-
-            Position next = strategy.step(maze, position); // next move
-
+    
+            Position next = strategy.step(maze, position);
+    
             if (next == null) {
                 running = false;
                 break;
             }
-
+    
             position = next;
             maze.notifyObservers();
-
+    
             try {
-                Thread.sleep(60); // slow animation
+                Thread.sleep(60);
             } catch (InterruptedException e) {
                 break;
             }
         }
-
+    
         running = false;
         maze.notifyObservers();
-    }
+    }    
 }

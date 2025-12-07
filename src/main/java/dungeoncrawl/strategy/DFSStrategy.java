@@ -7,17 +7,21 @@ import java.util.*;
 
 public class DFSStrategy implements NavigationStrategy {
 
-    private final Deque<Position> stack = new ArrayDeque<>();
-    private final Set<Position> visited = new HashSet<>();
-    private final Set<Position> frontier = new HashSet<>();
-    private boolean goalReached = false;
+    private Deque<Position> stack;
+    private Set<Position> visited;
+    private Set<Position> frontier;
+    private boolean goalFound;
+    private Position goal;
 
     @Override
     public void initialize(Maze maze, Position start) {
-        stack.clear();
-        visited.clear();
-        frontier.clear();
-        goalReached = false;
+        stack = new ArrayDeque<>();
+        visited = new HashSet<>();
+        frontier = new HashSet<>();
+        goalFound = false;
+
+        // find goal
+        goal = findGoal(maze);
 
         stack.push(start);
         frontier.add(start);
@@ -25,54 +29,35 @@ public class DFSStrategy implements NavigationStrategy {
 
     @Override
     public Position step(Maze maze, Position current) {
-
-        if (stack.isEmpty()) {
-            return null;
-        }
+        if (stack.isEmpty()) return null;
 
         Position next = stack.pop();
         frontier.remove(next);
 
-        if (!visited.contains(next)) {
-            visited.add(next);
+        if (visited.contains(next)) {
+            return current;
+        }
 
-            if (maze.getCell(next).isGoal()) {
-                goalReached = true;
-            }
+        visited.add(next);
 
-            for (Position p : getWalkableNeighbors(maze, next)) {
-                if (!visited.contains(p) && !frontier.contains(p)) {
-                    frontier.add(p);
-                    stack.push(p);
-                }
+        if (next.equals(goal)) {
+            goalFound = true;
+            return next;
+        }
+
+        for (Position n : neighbors(maze, next)) {
+            if (!visited.contains(n)) {
+                stack.push(n);
+                frontier.add(n);
             }
         }
 
         return next;
     }
 
-    private List<Position> getWalkableNeighbors(Maze maze, Position pos) {
-        List<Position> out = new ArrayList<>();
-
-        int r = pos.row();
-        int c = pos.col();
-
-        Position down = new Position(r + 1, c);
-        Position up = new Position(r - 1, c);
-        Position right = new Position(r, c + 1);
-        Position left = new Position(r, c - 1);
-
-        if (maze.inBounds(down) && !maze.getCell(down).isWall()) out.add(down);
-        if (maze.inBounds(up) && !maze.getCell(up).isWall()) out.add(up);
-        if (maze.inBounds(right) && !maze.getCell(right).isWall()) out.add(right);
-        if (maze.inBounds(left) && !maze.getCell(left).isWall()) out.add(left);
-
-        return out;
-    }
-
     @Override
     public boolean goalFound() {
-        return goalReached;
+        return goalFound;
     }
 
     @Override
@@ -83,5 +68,30 @@ public class DFSStrategy implements NavigationStrategy {
     @Override
     public Set<Position> getFrontierSet() {
         return frontier;
+    }
+
+    private List<Position> neighbors(Maze maze, Position p) {
+        List<Position> list = new ArrayList<>();
+        int r = p.row();
+        int c = p.col();
+
+        int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
+        for (int[] d : dirs) {
+            Position np = new Position(r + d[0], c + d[1]);
+            if (maze.inBounds(np) && !maze.getCell(np).isWall()) {
+                list.add(np);
+            }
+        }
+        return list;
+    }
+
+    private Position findGoal(Maze maze) {
+        for (int r = 0; r < maze.getRows(); r++) {
+            for (int c = 0; c < maze.getCols(); c++) {
+                Position p = new Position(r, c);
+                if (maze.getCell(p).isGoal()) return p;
+            }
+        }
+        return null;
     }
 }
