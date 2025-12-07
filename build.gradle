@@ -1,0 +1,32 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // JUnit 5 (Jupiter)
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+
+    // Required to run JUnit 5 tests under Gradle
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+application {
+    // Your application entry point
+    mainClass = 'dungeoncrawl.Main'
+}
+
+test {
+    // Enable JUnit 5
+    useJUnitPlatform()
+}
