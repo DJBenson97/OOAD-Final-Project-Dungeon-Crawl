@@ -12,6 +12,7 @@ public class SimulationConfig {
     private final Color agentColor;
     private final int tileSize;
 
+    // stores the configuration settings used for building and running the simulation
     public SimulationConfig(
             int rows,
             int cols,
@@ -30,30 +31,37 @@ public class SimulationConfig {
         this.tileSize = tileSize;
     }
 
+    // returns the number of maze rows
     public int getRows() {
         return rows;
     }
 
+    // returns the number of maze columns
     public int getCols() {
         return cols;
     }
 
+    // returns movement delay for the agent
     public int getMoveDelayMs() {
         return moveDelayMs;
     }
 
+    // returns floor color for non wall tiles
     public Color getWallColor() {
         return wallColor;
     }
 
+    // returns background color used for walkable tiles
     public Color getFloorColor() {
         return floorColor;
     }
 
+    // returns color used to draw the agent
     public Color getAgentColor() {
         return agentColor;
     }
 
+    // returns pixel size of each maze tile
     public int getTileSize() {
         return tileSize;
     }

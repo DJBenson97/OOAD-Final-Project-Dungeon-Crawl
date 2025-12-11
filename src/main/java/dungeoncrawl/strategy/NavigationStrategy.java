@@ -5,18 +5,24 @@ import dungeoncrawl.model.Position;
 
 import java.util.Set;
 
+// defines a common interface for all maze navigation strategies
 public interface NavigationStrategy {
 
-    // called once at start
+    // called once before navigation begins to set up internal state
     void initialize(Maze maze, Position start);
 
-    // called every animation tick
+    // performs a single navigation step and returns the next position
     Position step(Maze maze, Position current);
 
-    // true when the strategy reached the maze goal
+    // indicates whether the strategy has found the goal
     boolean goalFound();
 
-    // used by MazePanel for coloring
+    // returns all positions that have been visited so far
     Set<Position> getVisitedSet();
+
+    // returns the current frontier of positions to be explored
     Set<Position> getFrontierSet();
+
+    // returns the final path from start to goal, if found
+    Set<Position> getFinalPath();
 }
